@@ -1,7 +1,8 @@
 FROM alpine:latest
 
 RUN apk --update add python3 python3-dev build-base \
-            mariadb-dev
+            mariadb-dev \
+            nmap
 RUN pip3 install mysqlclient
 
 COPY ./nmap_scan.py /usr/bin/nmap_scan.py
