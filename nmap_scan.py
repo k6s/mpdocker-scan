@@ -3,6 +3,7 @@
 import subprocess
 import sys
 import MySQLdb
+import time
 
 CMD=['nmap', '-sS', '-Pn', '-T4', '-sV', '-O', '--version-all', '--osscan-guess']
 
@@ -122,18 +123,23 @@ def     db_push(db, hosts):
         cur.close()
 
 def     usage():
-    print('usage:', sys.argv[0], 'iprange sqlhost sqluser sqlpw sqldb')
+    print('usage:', sys.argv[0], 'iprange sqlhost sqluser sqlpw sqldb [delay]')
     sys.exit(1)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
-        usage()
-    target = sys.argv[1]
-    # output = subprocess.Popen(CMD + [target], stdout=subprocess.PIPE).communicate()[0]
-    output = b'Starting Nmap 7.70 ( https://nmap.org ) at 2018-05-14 21:01 UTC\nNmap scan report for 192.168.1.1\nHost is up (0.021s latency).\nNot shown: 996 closed ports\nPORT     STATE SERVICE    VERSION\n23/tcp   open  telnet?\n53/tcp   open  domain     dnsmasq 2.15-OpenDNS-1\n80/tcp   open  tcpwrapped\n5000/tcp open  tcpwrapped\nMAC Address: C4:04:15:48:5A:48 (Netgear)\nDevice type: general purpose\nRunning: Linux 2.6.X\nOS CPE: cpe:/o:linux:linux_kernel:2.6.22\nOS details: Linux 2.6.22 (embedded, ARM)\nNetwork Distance: 1 hop\n\nNmap scan report for 192.168.1.24\nHost is up (0.094s latency).\nAll 1000 scanned ports on 192.168.1.24 are closed\nMAC Address: 4C:4E:03:76:C4:19 (TCT mobile)\nToo many fingerprints match this host to give specific OS details\nNetwork Distance: 1 hop\n\nNmap scan report for 192.168.1.26\nHost is up (0.032s latency).\nAll 1000 scanned ports on 192.168.1.26 are closed\nMAC Address: 38:E6:0A:81:D4:44 (Unknown)\nToo many fingerprints match this host to give specific OS details\nNetwork Distance: 1 hop\n\nNmap scan report for 192.168.1.23\nHost is up (0.000069s latency).\nAll 1000 scanned ports on 192.168.1.23 are closed\nToo many fingerprints match this host to give specific OS details\nNetwork Distance: 0 hops\n\nOS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .\nNmap done: 256 IP addresses (4 hosts up) scanned in 527.26 seconds\n'
-    hosts = parse(output)
-    db = MySQLdb.connect(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
-    print('\n\n', output)
-    db_push(db, hosts)
-    db.close()
+    delay = 86400
+    if len(sys.argv) == 7:
+        delay = int(sys.argv[6])
+    while True:
+        if len(sys.argv) != 6 and len(sys.argv) != 7:
+            usage()
+        target = sys.argv[1]
+        output = subprocess.Popen(CMD + [target], stdout=subprocess.PIPE).communicate()[0]
+        #output = b'Starting Nmap 7.70 ( https://nmap.org ) at 2018-05-14 21:01 UTC\nNmap scan report for 192.168.1.1\nHost is up (0.021s latency).\nNot shown: 996 closed ports\nPORT     STATE SERVICE    VERSION\n23/tcp   open  telnet?\n53/tcp   open  domain     dnsmasq 2.15-OpenDNS-1\n80/tcp   open  tcpwrapped\n5000/tcp open  tcpwrapped\nMAC Address: C4:04:15:48:5A:48 (Netgear)\nDevice type: general purpose\nRunning: Linux 2.6.X\nOS CPE: cpe:/o:linux:linux_kernel:2.6.22\nOS details: Linux 2.6.22 (embedded, ARM)\nNetwork Distance: 1 hop\n\nNmap scan report for 192.168.1.24\nHost is up (0.094s latency).\nAll 1000 scanned ports on 192.168.1.24 are closed\nMAC Address: 4C:4E:03:76:C4:19 (TCT mobile)\nToo many fingerprints match this host to give specific OS details\nNetwork Distance: 1 hop\n\nNmap scan report for 192.168.1.26\nHost is up (0.032s latency).\nAll 1000 scanned ports on 192.168.1.26 are closed\nMAC Address: 38:E6:0A:81:D4:44 (Unknown)\nToo many fingerprints match this host to give specific OS details\nNetwork Distance: 1 hop\n\nNmap scan report for 192.168.1.23\nHost is up (0.000069s latency).\nAll 1000 scanned ports on 192.168.1.23 are closed\nToo many fingerprints match this host to give specific OS details\nNetwork Distance: 0 hops\n\nOS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .\nNmap done: 256 IP addresses (4 hosts up) scanned in 527.26 seconds\n'
+        hosts = parse(output)
+        db = MySQLdb.connect(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+        print('\n\n', output)
+        db_push(db, hosts)
+        db.close()
+        time.sleep(delay)
     sys.exit(0)
