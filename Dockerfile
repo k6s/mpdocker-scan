@@ -1,4 +1,4 @@
-FROM iotsec/arm-alpine
+FROM alpine:latest
 
 RUN apk --update add python3 python3-dev build-base \
             mariadb-dev
